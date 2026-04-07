@@ -1,34 +1,637 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PodcastWorld 路 鎾涓栫晫</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap">
-
+<title>PodcastWorld 播客世界</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --purple:#6B4EFF;--purple2:#A78BFA;--pink:#F472B6;
+  --bg:#F5F5F7;--surface:#fff;--text:#1D1D1F;--mid:#86868B;
+  --green:#34C759;--border:#E5E5EA;--shadow:0 2px 12px rgba(0,0,0,.08);
+}
+html,body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text)}
+.app-wrap{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
+.sidebar-logo{padding:20px 16px 16px;font-size:.85rem;font-weight:700;color:var(--purple);letter-spacing:.5px;border-bottom:1px solid var(--border)}
+.sidebar-logo span{display:block;font-size:.65rem;font-weight:400;color:var(--mid);margin-top:2px}
+.sidebar-section{margin:12px 0 4px;padding:0 16px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--mid)}
+.sidebar-item{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;border-radius:0;font-size:.82rem;color:var(--text);transition:background .12s}
+.sidebar-item:hover{background:#F0F0FF}
+.sidebar-item.active{background:linear-gradient(90deg,#EDE9FE,#fff);color:var(--purple);font-weight:600}
+.sidebar-item .flag{font-size:1rem}
+.sidebar-item .count{margin-left:auto;background:#F0F0FF;color:var(--purple);border-radius:20px;padding:1px 7px;font-size:.65rem;font-weight:700}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{padding:16px 24px 12px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px}
+.topbar-title{font-size:1.4rem;font-weight:800;color:var(--text);white-space:nowrap}
+.search-box{flex:1;position:relative}
+.search-box input{width:100%;padding:8px 14px 8px 36px;border:1.5px solid var(--border);border-radius:10px;font-size:.82rem;outline:none;transition:border .2s;background:var(--bg)}
+.search-box input:focus{border-color:var(--purple);background:#fff}
+.search-box .si{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--mid);font-size:.9rem}
+.topbar-actions{display:flex;gap:8px}
+.icon-btn{width:36px;height:36px;border:1.5px solid var(--border);border-radius:10px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;transition:all .15s;color:var(--mid)}
+.icon-btn:hover{border-color:var(--purple);color:var(--purple);background:#F5F0FF}
+.icon-btn.active{background:var(--purple);color:#fff;border-color:var(--purple)}
+.filter-bar{padding:10px 24px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;gap:8px;overflow-x:auto;flex-shrink:0}
+.filter-tag{padding:4px 12px;border-radius:20px;font-size:.72rem;font-weight:600;border:1.5px solid var(--border);background:#fff;cursor:pointer;white-space:nowrap;transition:all .15s;color:var(--mid)}
+.filter-tag:hover{border-color:var(--purple);color:var(--purple)}
+.filter-tag.active{background:var(--purple);color:#fff;border-color:var(--purple)}
+.content{padding:20px 24px;overflow-y:auto;flex:1}
+.content-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.content-header h2{font-size:1rem;font-weight:700}
+.content-header span{font-size:.75rem;color:var(--mid)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
+.card{background:var(--surface);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s,box-shadow .15s;position:relative}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(107,78,255,.15)}
+.card-img{width:100%;aspect-ratio:1;background:#E8E0FF;display:flex;align-items:center;justify-content:center;font-size:3rem}
+.card-img img{width:100%;height:100%;object-fit:cover}
+.card-body{padding:10px 12px 12px}
+.card-title{font-size:.78rem;font-weight:700;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:4px}
+.card-meta{font-size:.65rem;color:var(--mid);margin-bottom:6px}
+.card-tags{display:flex;flex-wrap:wrap;gap:3px}
+.tag{background:#F0F0FF;color:var(--purple);border-radius:6px;padding:1px 5px;font-size:.6rem;font-weight:600}
+.tag.lang{background:#FFF0F5;color:#E04080}
+.fav-btn{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.9);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;transition:all .15s;opacity:0}
+.card:hover .fav-btn{opacity:1}
+.fav-btn.hearted{opacity:1;background:var(--pink);color:#fff}
+/* Player Bar */
+.player-bar{height:64px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;gap:14px;padding:0 20px;flex-shrink:0}
+.pb-thumb{width:44px;height:44px;border-radius:8px;background:#E8E0FF;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;overflow:hidden}
+.pb-thumb img{width:100%;height:100%;object-fit:cover}
+.pb-info{flex:1;min-width:0}
+.pb-title{font-size:.78rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pb-sub{font-size:.65rem;color:var(--mid)}
+.pb-controls{display:flex;align-items:center;gap:10px}
+.pb-btn{width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all .15s}
+.pb-play{background:var(--purple);color:#fff}
+.pb-play:hover{background:#5A3EEE}
+.pb-skip{background:var(--bg);color:var(--mid);border:1px solid var(--border)}
+.pb-skip:hover{background:var(--border)}
+.pb-time{font-size:.65rem;color:var(--mid);white-space:nowrap;min-width:80px;text-align:center}
+.pb-vol{display:flex;align-items:center;gap:6px;color:var(--mid);font-size:.78rem}
+.pb-vol input{width:60px;accent-color:var(--purple)}
+.pb-progress{flex:0 0 120px;display:flex;align-items:center;gap:4px}
+.pb-progress input{width:120px;accent-color:var(--purple)}
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;backdrop-filter:blur(4px)}
+.modal{background:var(--surface);border-radius:18px;width:100%;max-width:860px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-header{padding:20px 24px;display:flex;align-items:flex-start;gap:18px;border-bottom:1px solid var(--border);flex-shrink:0}
+.mh-cover{width:120px;height:120px;border-radius:14px;background:#E8E0FF;display:flex;align-items:center;justify-content:center;font-size:2.5rem;flex-shrink:0;overflow:hidden}
+.mh-cover img{width:100%;height:100%;object-fit:cover}
+.mh-info{flex:1}
+.mh-title{font-size:1.1rem;font-weight:800;margin-bottom:4px}
+.mh-author{font-size:.78rem;color:var(--mid);margin-bottom:8px}
+.mh-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.mh-actions{display:flex;gap:8px}
+.btn{_padding:7px 16px;border-radius:10px;font-size:.78rem;font-weight:600;border:none;cursor:pointer;transition:all .15s}
+.btn-primary{background:var(--purple);color:#fff}
+.btn-primary:hover{background:#5A3EEE}
+.btn-secondary{background:var(--bg);color:var(--text);border:1.5px solid var(--border)}
+.btn-secondary:hover{border-color:var(--purple);color:var(--purple)}
+.mh-close{font-size:1.2rem;color:var(--mid);cursor:pointer;padding:4px;border:none;background:none;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.mh-close:hover{background:var(--bg);color:var(--text)}
+.modal-tabs{display:flex;border-bottom:1px solid var(--border);padding:0 24px;flex-shrink:0}
+.tab{_padding:10px 14px;font-size:.78rem;font-weight:600;color:var(--mid);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.tab.active{color:var(--purple);border-bottom-color:var(--purple)}
+.modal-body{flex:1;overflow-y:auto;padding:20px 24px}
+.ep-list{list-style:none;display:flex;flex-direction:column;gap:4px}
+.ep-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;cursor:pointer;transition:background .12s}
+.ep-item:hover{background:#F5F0FF}
+.ep-num{flex-shrink:0;font-size:.7rem;font-weight:700;color:var(--mid);width:24px}
+.ep-title{flex:1;font-size:.82rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ep-dur{font-size:.68rem;color:var(--mid)}
+.ep-dl{color:var(--mid);cursor:pointer;font-size:.85rem;padding:4px;border-radius:6px;transition:all .15s}
+.ep-dl:hover{background:#F0F0FF;color:var(--purple)}
+/* Transcript */
+.transcript{font-size:.8rem;line-height:1.8}
+.tr-line{padding:6px 10px;border-radius:8px;cursor:pointer;transition:background .12s}
+.tr-line:hover{background:#F0F0FF}
+.tr-en{font-weight:500;color:var(--text)}
+.tr-cn{color:var(--mid);font-size:.75rem;margin-top:2px}
+.tr-line.active{background:#EDE9FE;border-left:3px solid var(--purple);padding-left:7px}
+/* AI Chat */
+.ai-chat{display:flex;flex-direction:column;gap:12px;height:100%}
+.ai-msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+.ai-msg{display:flex;gap:8px;align-items:flex-start}
+.ai-msg.user{flex-direction:row-reverse}
+.ai-avatar{flex-shrink:0;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700}
+.ai-avatar.ai{background:#EDE9FE;color:var(--purple)}
+.ai-avatar.user{background:#F0F0FF;color:var(--mid)}
+.ai-bubble{padding:8px 12px;border-radius:12px;max-width:75%;font-size:.8rem;line-height:1.5}
+.ai-bubble.ai{background:#F5F0FF;color:var(--text)}
+.ai-bubble.user{background:var(--purple);color:#fff}
+.ai-input-wrap{display:flex;gap:8px;flex-shrink:0}
+.ai-input-wrap input{flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:.82rem;outline:none}
+.ai-input-wrap input:focus{border-color:var(--purple)}
+.ai-input-wrap button{background:var(--purple);color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:.78rem;font-weight:600;cursor:pointer}
+/* DL Panel */
+.dl-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.dl-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border-radius:10px}
+.dl-name{flex:1;font-size:.8rem;font-weight:500}
+.dl-size{font-size:.7rem;color:var(--mid)}
+.dl-del{cursor:pointer;color:var(--mid);font-size:.8rem;padding:4px;border-radius:6px;transition:all .15s}
+.dl-del:hover{color:red;background:#FFE0E0}
+/* Passkey Lock */
+.pk-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#1a0033,#3d0080,#6B4EFF);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999}
+.pk-card{background:rgba(255,255,255,.08);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.15);border-radius:24px;padding:40px;max-width:380px;width:90%;text-align:center;color:#fff}
+.pk-icon{font-size:3rem;margin-bottom:16px}
+.pk-title{font-size:1.3rem;font-weight:800;margin-bottom:8px}
+.pk-sub{font-size:.82rem;opacity:.7;margin-bottom:28px;line-height:1.6}
+.pk-btn{background:#fff;color:var(--purple);border:none;border-radius:12px;padding:12px 28px;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .15s;width:100%}
+.pk-btn:hover{transform:scale(1.02);box-shadow:0 4px 20px rgba(255,255,255,.3)}
+.pk-error{margin-top:12px;font-size:.78rem;color:#FF6B6B;display:none}
+.pk-loading{font-size:.8rem;opacity:.7;margin-top:8px}
+/* Fav tab */
+.fav-empty{text-align:center;padding:60px 20px;color:var(--mid);font-size:.85rem}
+.fav-empty .fe{font-size:3rem;margin-bottom:12px}
+/* Responsive */
+@media(max-width:640px){
+  .sidebar{display:none}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+  .pb-progress,.pb-vol{display:none}
+}
+</style>
 </head>
 <body>
-<div id="root"></div>
+<div id="root">
+<div class="pk-overlay" id="pk-screen">
+  <div class="pk-card">
+    <div class="pk-icon">&#128272;</div>
+    <div class="pk-title">PodcastWorld</div>
+    <div class="pk-sub">使用通行密钥解锁访问<br>仅限授权用户访问</div>
+    <button class="pk-btn" id="pk-btn">&#128272; 解锁访问</button>
+    <div class="pk-error" id="pk-error"></div>
+    <div class="pk-loading" id="pk-loading" style="display:none"></div>
+  </div>
+</div>
+</div>
+
 <script crossorigin src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
-<script>
-(function(){
-  function doTransform(){
-    var ss=document.querySelectorAll("script[type=text/babel]");
-    if(!ss.length){setTimeout(doTransform,100);return}
-    var src=ss[0].textContent||"";
-    if(!src){document.getElementById("root").innerHTML="<pre style=color:red>Error: empty script</pre>";return}
+<script type="text/babel">
+const {useState,useEffect,useRef,useCallback}=React;
+
+// ── Data ──────────────────────────────────────────────────────────
+const PODCASTS=[
+  {id:1,title:"The Daily",author:"The New York Times",lang:"English",langCode:"US",cat:"News",rating:5,cover:"",subscribers:"18M",description:"美国最有影响力的每日新闻播客，涵盖政治、经济、文化。"},
+  {id:2,title:"晓说",author:"高晓松",lang:"中文",langCode:"CN",cat:"文化教育",rating:5,cover:"",subscribers:"5M",description:"高晓松聊历史、文化、世界，视野开阔。"},
+  {id:3,title:"故事FM",author:"故事FM",lang:"中文",langCode:"CN",cat:"文化教育",rating:4,cover:"",subscribers:"2M",description:"用你的声音，讲述你的故事。"},
+  {id:4,title:"聲之道",author:"Various",lang:"中文",langCode:"CN",cat:"文化教育",rating:4,cover:"",subscribers:"800K",description:"深度中文播客，探索语言与声音之美。"},
+  {id:5,title:"新闻早餐",author:"澎湃新闻",lang:"中文",langCode:"CN",cat:"新闻",rating:4,cover:"",subscribers:"3M",description:"每天早晨，用声音打开世界。"},
+  {id:6,title:"TechCrunch Podcasts",author:"TechCrunch",lang:"English",langCode:"US",cat:"Business",rating:4,cover:"",subscribers:"2M",description:"硅谷科技新闻与深度分析。"},
+  {id:7,title:"This American Life",author:"Ira Glass",lang:"English",langCode:"US",cat:"Culture",rating:5,cover:"",subscribers:"4M",description:"用故事探索美国生活的方方面面。"},
+  {id:8,title:"经济学人·播客版",author:"The Economist",lang:"中文",langCode:"CN",cat:"商业科技",rating:5,cover:"",subscribers:"1.5M",description:"经济学人精选内容的中文播客版。"},
+  {id:9,title:"Serial",author:"Sarah Koenig",lang:"English",langCode:"US",cat:"True Crime",rating:5,cover:"",subscribers:"3M",description:"开创性真实犯罪播客，调查 journalism 的极限。"},
+  {id:10,title:" NPR Politics Podcast",author:"NPR",lang:"English",langCode:"US",cat:"News",rating:4,cover:"",subscribers:"2.5M",description:"美国政治新闻每日分析。"},
+  {id:11,title:"科学有故事",author:"汪诘",lang:"中文",langCode:"CN",cat:"科学",rating:4,cover:"",subscribers:"1M",description:"用故事讲述科学，用科学解释世界。"},
+  {id:12,title:"忽左忽右",author:"忽左忽右",lang:"中文",langCode:"CN",cat:"历史",rating:5,cover:"",subscribers:"1.2M",description:"历史、文化、社会观察的深度对话。"},
+  {id:13,title:"得意忘形",author:"张潇",lang:"中文",langCode:"CN",cat:"哲学宗教",rating:5,cover:"",subscribers:"500K",description:"探索自我与世界的关系。"},
+  {id:14,title:"随机波动",author:"随机波动",lang:"中文",langCode:"CN",cat:"文化教育",rating:5,cover:"",subscribers:"800K",description:"三位女性学者的文化观察与对话。"},
+  {id:15,title:"Beyond Today",author:"BBC World Service",lang:"English",langCode:"GB",cat:"News",rating:4,cover:"",subscribers:"5M",description:"超越今日，深入了解影响世界的事件。"},
+  {id:16,title:"TED Talks Daily",author:"TED",lang:"English",langCode:"US",cat:"Education",rating:5,cover:"",subscribers:"25M",description:"每日TED演讲，Ideas worth spreading。"},
+  {id:17,title:"Radiolab",author:"WNYC",lang:"English",langCode:"US",cat:"Science",rating:5,cover:"",subscribers:"12M",description:"用声音探索科学、哲学与人类经验的边界。"},
+  {id:18,title:"圆桌派",author:"窦文涛",lang:"中文",langCode:"CN",cat:"文化教育",rating:5,cover:"",subscribers:"2M",description:"四人围坐，聊文化、聊社会、聊人生。"},
+  {id:19,title:"商业WHY酱",author:"36氪",lang:"中文",langCode:"CN",cat:"商业科技",rating:4,cover:"",subscribers:"300K",description:"深度商业分析，Why为先。"},
+  {id:20,title:"交差点",author:"交差点",lang:"中文",langCode:"CN",cat:"文化教育",rating:4,cover:"",subscribers:"200K",description:"中日文化交汇，深度观察两国的异与同。"},
+  {id:21,title:"How I Built This",author:"Guy Raz",lang:"English",langCode:"US",cat:"Business",rating:5,cover:"",subscribers:"8M",description:"对话创业者，讲述他们如何建立商业帝国。"},
+  {id:22,title:"Freakonomics Radio",author:"Freakonomics",lang:"English",langCode:"US",cat:"Business",rating:5,cover:"",subscribers:"6M",description:"用经济学视角解读世界。"},
+  {id:23,title:"No Stupid Questions",author:"Freakonomics",lang:"English",langCode:"US",cat:"Science",rating:4,cover:"",subscribers:"3M",description:"回答你一直想问但没问出口的问题。"},
+  {id:24,title:"Anyway —  anyway",lang:"中文",author:"Anyway FM",langCode:"CN",cat:"艺术创作",rating:4,cover:"",subscribers:"150K",description:"设计思维与创意工作。"},
+  {id:25,title:"八分",author:"梁文道",lang:"中文",langCode:"CN",cat:"文化教育",rating:5,cover:"",subscribers:"1M",description:"梁文道每天用8分钟聊一本书或一个话题。"},
+  {id:26,title:"Decode",author:"Decode",lang:"中文",langCode:"CN",cat:"商业科技",rating:4,cover:"",subscribers:"400K",description:"解码科技趋势与商业变革。"},
+  {id:27,title:"Planet Money",author:"NPR",lang:"English",langCode:"US",cat:"Business",rating:5,cover:"",subscribers:"5M",description:"用有趣的方式解释经济现象。"},
+  {id:28,title:"The Journal",author:"WSJ",lang:"English",langCode:"US",cat:"News",rating:4,cover:"",subscribers:"4M",description:"华尔街日报每日科技与商业新闻。"},
+  {id:29,title:"硬地骇客",author:"硬地骇客",lang:"中文",langCode:"CN",cat:"商业科技",rating:4,cover:"",subscribers:"200K",description:"科技创业者的真实故事。"},
+  {id:30,title:"Headspace",author:"Headspace",lang:"English",langCode:"US",cat:"Health",rating:4,cover:"",subscribers:"7M",description:"正念冥想，专注力训练。"},
+  {id:31,title:"On Purpose",author:"Jay Shetty",lang:"English",langCode:"US",cat:"Health",rating:4,cover:"",subscribers:"10M",description:"让你的生活更有意义、更有目标。"},
+  {id:32,title:"春潮",author:"春潮工作室",lang:"中文",langCode:"CN",cat:"文化教育",rating:4,cover:"",subscribers:"600K",description:"中国年轻人的文化与生活方式。"},
+  {id:33,title:"The Rich Roll Podcast",author:"Rich Roll",lang:"English",langCode:"US",cat:"Health",rating:4,cover:"",subscribers:"3M",description:"健康、健身、极限运动与人生转变。"},
+  {id:34,title:"Steve Jobs: The Biography",author:"AudioBook",lang:"English",langCode:"US",cat:"Business",rating:4,cover:"",subscribers:"2M",description:"乔布斯传记有声版。"},
+  {id:35,title:"日谈公园",author:"日谈公园",lang:"中文",langCode:"CN",cat:"文化教育",rating:5,cover:"",subscribers:"800K",description:"文化脱口秀，聊音乐、电影、文学。"},
+  {id:36,title:"无聊斋",author:"无聊斋",lang:"中文",langCode:"CN",cat:"娱乐休闲",rating:5,cover:"",subscribers:"1M",description:"单口喜剧演员的闲聊播客。"},
+  {id:37,title:"Not So Standard",author:"Not So Standard",lang:"English",langCode:"US",cat:"Entertainment",rating:4,cover:"",subscribers:"1M",description:"流行文化与娱乐评论。"},
+  {id:38,title:"Under the Skin",author:"Johann Hari",lang:"English",langCode:"GB",cat:"Culture",rating:5,cover:"",subscribers:"2M",description:"深度对话，探索被隐藏的真相。"},
+  {id:39,title:"知行小酒馆",author:"有知有行",lang:"中文",langCode:"CN",cat:"商业科技",rating:5,cover:"",subscribers:"500K",description:"投资与商业的知行合一。"},
+  {id:40,title:"The Tim Ferriss Show",author:"Tim Ferriss",lang:"English",langCode:"US",cat:"Business",rating:5,cover:"",subscribers:"10M",description:"对话世界顶级表现者，解密他们的习惯与工具。"},
+  {id:41,title:"Darknet Diaries",author:"Jack Rhysider",lang:"English",langCode:"US",cat:"True Crime",rating:5,cover:"",subscribers:"5M",description:"真实的黑客与网络安全故事。"},
+  {id:42,title:"La Casa de los Famosos",author:"Various",lang:"Spanish",langCode:"ES",cat:"Entertainment",rating:4,cover:"",subscribers:"3M",description:"西班牙语娱乐圈八卦与深度讨论。"},
+  {id:43,title:"文化土豆",author:"文化土豆",lang:"中文",langCode:"CN",cat:"文化教育",rating:4,cover:"",subscribers:"400K",description:"文化观察与书籍推荐。"},
+  {id:44,title:"The Anthropocene",author:"BBC",lang:"English",langCode:"GB",cat:"Science",rating:4,cover:"",subscribers:"2M",description:"人类世的科学、环境与未来。"},
+  {id:45,title:"大内密谈",author:"大内密谈",lang:"中文",langCode:"CN",cat:"娱乐休闲",rating:4,cover:"",subscribers:"600K",description:"音乐、亚文化与生活方式的私房话。"},
+  {id:46,title:"The Huberman Lab",author:"Andrew Huberman",lang:"English",langCode:"US",cat:"Science",rating:5,cover:"",subscribers:"8M",description:"神经科学与健康工具，用科学优化生活。"},
+  {id:47,title:"忽而今夏",author:"Various",lang:"中文",langCode:"CN",cat:"历史",rating:4,cover:"",subscribers:"300K",description:"历史中的四季与人。"},
+  {id:48,title:"60 Minutes",author:"CBS",lang:"English",langCode:"US",cat:"News",rating:4,cover:"",subscribers:"4M",description:"传奇新闻节目的播客版。"},
+  {id:49,title:"芥子说",author:"芥子说",lang:"中文",langCode:"CN",cat:"哲学宗教",rating:4,cover:"",subscribers:"200K",description:"小故事，大道理。"},
+  {id:50,title:"BBC Learning English",author:"BBC",lang:"English",langCode:"GB",cat:"Education",rating:5,cover:"",subscribers:"15M",description:"英语学习权威资源。"},
+  {id:51,title:"Late Night Lives",author:"Various",lang:"English",langCode:"US",cat:"Culture",rating:4,cover:"",subscribers:"1M",description:"深夜对话，触及灵魂。"},
+  {id:52,title:"艺术世界",author:"Art World",lang:"中文",langCode:"CN",cat:"艺术创作",rating:4,cover:"",subscribers:"300K",description:"探索当代艺术与创意产业。"},
+  {id:53,title:"All In",author:"Chamath, Jason, David, Friedberg",lang:"English",langCode:"US",cat:"Business",rating:5,cover:"",subscribers:"4M",description:"四位科技投资人聊 Tech、财经与未来。"},
+  {id:54,title:"Design Matters",author:"Debbie Millman",lang:"English",langCode:"US",cat:"Art",rating:5,cover:"",subscribers:"3M",description:"设计界最持久的访谈节目。"},
+  {id:55,title:"忽而今夏·历史篇",author:"Various",lang:"中文",langCode:"CN",cat:"历史",rating:4,cover:"",subscribers:"250K",description:"用历史照见现实。"},
+  {id:56,title:"The Joe Rogan Experience",author:"Joe Rogan",lang:"English",langCode:"US",cat:"Entertainment",rating:5,cover:"",subscribers:"50M",description:"全球收听量最高的播客，话题无禁区。"},
+  {id:57,title:"Startup播客",author:"36氪",lang:"中文",langCode:"CN",cat:"商业科技",rating:4,cover:"",subscribers:"500K",description:"中国创业公司与科技动态。"},
+  {id:58,title:"Go语言私房菜",author:"Go语言社区",lang:"中文",langCode:"CN",cat:"商业科技",rating:4,cover:"",subscribers:"200K",description:"Go语言技术深度分享。"},
+  {id:59,title:"Lore",author:"Aaron Mahnke",lang:"English",langCode:"US",cat:"History",rating:4,cover:"",subscribers:"5M",description:"都市传说与历史上令人不寒而栗的故事。"},
+  {id:60,title:"字谈字畅",author:"字谈字畅",lang:"中文",langCode:"CN",cat:"艺术创作",rating:4,cover:"",subscribers:"100K",description:"字体设计与排版艺术。"},
+  {id:61,title:"Phonics Pod",author:"Phonics",lang:"English",langCode:"US",cat:"Education",rating:4,cover:"",subscribers:"2M",description:"自然拼读法英语学习。"},
+  {id:62,title:"Afrobeats Podcast",author:"Various",lang:"English",langCode:"NG",cat:"Entertainment",rating:4,cover:"",subscribers:"1M",description:"非洲音乐与流行文化。"},
+  {id:63,title:"科技早知道",author:"声动活泼",lang:"中文",langCode:"CN",cat:"商业科技",rating:5,cover:"",subscribers:"600K",description:"用声音追踪全球科技动态。"},
+  {id:64,title:"The Dropout",author:"ABC News",lang:"English",langCode:"US",cat:"Business",rating:5,cover:"",subscribers:"4M",description:"Elizabeth Holmes 与 Theranos 的完整故事。"},
+  {id:65,title:"What's Next | 科技早知道",author:"声动活泼",lang:"中文",langCode:"CN",cat:"商业科技",rating:4,cover:"",subscribers:"400K",description:"科技行业趋势与深度分析。"},
+  {id:66,title:" Stuff You Should Know",author:"iHeartPodcasts",lang:"English",langCode:"US",cat:"Education",rating:5,cover:"",subscribers:"15M",description:"你应该知道的有趣知识，应有尽有。"},
+  {id:67,title:"翻转电台",author:"翻转电台",lang:"中文",langCode:"CN",cat:"哲学宗教",rating:5,cover:"",subscribers:"300K",description:"翻转认知，探索哲学与思想。"},
+  {id:68,title:"Slow German",author:"Annik Rubens",lang:"German",langCode:"DE",cat:"Education",rating:4,cover:"",subscribers:"500K",description:"德语学习播客，慢速德语新闻与文化。"},
+  {id:69,title:"一席",author:"一席",lang:"中文",langCode:"CN",cat:"文化教育",rating:5,cover:"",subscribers:"1M",description:"听各行各业的人分享见解。"},
+  {id:70,title:"Japanese Pod 101",author:"Innovative Language",lang:"Japanese",langCode:"JP",cat:"Education",rating:4,cover:"",subscribers:"3M",description:"日语学习最全面的播客资源。"},
+  {id:71,title:"Beyond the Noise",author:"Various",lang:"English",langCode:"GB",cat:"Music",rating:4,cover:"",subscribers:"1M",description:"深度音乐评论与艺人访谈。"},
+  {id:72,title:"我爱我家",author:"Various",lang:"中文",langCode:"CN",cat:"娱乐休闲",rating:4,cover:"",subscribers:"2M",description:"生活类休闲播客。"},
+  {id:73,title:"Korean Pod 101",author:"Innovative Language",lang:"Korean",langCode:"KR",cat:"Education",rating:4,cover:"",subscribers:"2M",description:"韩语学习播客。"},
+  {id:74,title:"Late Night with Seth Meyers",author:"NBC",lang:"English",langCode:"US",cat:"Entertainment",rating:4,cover:"",subscribers:"3M",description:"深夜脱口秀音频版。"},
+  {id:75,title:"Prologe",author:"Various",lang:"German",langCode:"DE",cat:"Culture",rating:4,cover:"",subscribers:"300K",description:"德国文化与社会观察。"},
+  {id:76,title:"After Hours",author:"HBR",lang:"English",langCode:"US",cat:"Business",rating:4,cover:"",subscribers:"2M",description:"哈佛商业评论，三位教授聊管理与商业。"},
+  {id:77,title:"芥末堆",author:"芥末堆",lang:"中文",langCode:"CN",cat:"文化教育",rating:4,cover:"",subscribers:"400K",description:"教育科技与创新。"},
+  {id:78,title:"Duolingo Podcast",author:"Duolingo",lang:"English",langCode:"US",cat:"Education",rating:5,cover:"",subscribers:"8M",description:"用真实故事学英语，多语言版本。"},
+  {id:79,title:"Between Two Podcasts",author:"Various",lang:"English",langCode:"US",cat:"Culture",rating:4,cover:"",subscribers:"500K",description:"两位主播的深度文化对话。"},
+  {id:80,title:"看理想",author:"看理想",lang:"中文",langCode:"CN",cat:"文化教育",rating:5,cover:"",subscribers:"1M",description:"用声音普及知识，连接学术与大众。"},
+  {id:81,title:"The Moth",author:"The Moth",lang:"English",langCode:"US",cat:"Culture",rating:5,cover:"",subscribers:"4M",description:"真实生活故事，现场讲述。"},
+  {id:82,title:"意语课堂",author:"Various",lang:"Italian",langCode:"IT",cat:"Education",rating:4,cover:"",subscribers:"200K",description:"意大利语学习播客。"},
+  {id:83,title:"The Journal.",author:"WSJ",lang:"English",langCode:"US",cat:"News",rating:4,cover:"",subscribers:"4M",description:"每日科技与金融新闻。"},
+  {id:84,title:"Moin Moin",author:"Various",lang:"German",langCode:"DE",cat:"Culture",rating:4,cover:"",subscribers:"150K",description:"德语日常对话与文化。"},
+  {id:85,title:"What's the_freq",author:"Various",lang:"中文",langCode:"CN",cat:"商业科技",rating:4,cover:"",subscribers:"200K",description:"频率与声波的科学。"},
+  {id:86,title:"French Pod 101",author:"Innovative Language",lang:"French",langCode:"FR",cat:"Education",rating:4,cover:"",subscribers:"2M",description:"法语学习播客。"},
+  {id:87,title:"The Rewatchables",author:"The Ringer",lang:"English",langCode:"US",cat:"Entertainment",rating:4,cover:"",subscribers:"3M",description:"电影重温，经典电影反复聊。"},
+  {id:88,title:"惊奇电台",author:"惊奇播客",lang:"中文",langCode:"CN",cat:"娱乐休闲",rating:4,cover:"",subscribers:"500K",description:"惊奇故事，有声剧。"},
+  {id:89,title:"Afro Kitchen",author:"Various",lang:"English",langCode:"NG",cat:"Culture",rating:4,cover:"",subscribers:"300K",description:"非洲饮食文化与故事。"},
+  {id:90,title:"星船科普",author:"星船科普",lang:"中文",langCode:"CN",cat:"科学",rating:4,cover:"",subscribers:"300K",description:"太空探索与宇宙科学。"},
+  {id:91,title:"Spanish Pod 101",author:"Innovative Language",lang:"Spanish",langCode:"ES",cat:"Education",rating:4,cover:"",subscribers:"3M",description:"西班牙语学习播客。"},
+  {id:92,title:"The Memory Palace",author:"Hawk Krall",lang:"English",langCode:"US",cat:"History",rating:5,cover:"",subscribers:"1M",description:"短小精悍的历史故事，每集几分钟。"},
+  {id:93,title:"声东击西",author:"声动活泼",lang:"中文",langCode:"CN",cat:"商业科技",rating:5,cover:"",subscribers:"700K",description:"全球科技、商业、文化观察。"},
+  {id:94,title:"Mondaine",author:"Various",lang:"German",langCode:"DE",cat:"Business",rating:4,cover:"",subscribers:"200K",description:"德国商业与管理播客。"},
+  {id:95,title:"星岛广播",author:"星岛日报",lang:"中文",langCode:"CN",cat:"新闻",rating:4,cover:"",subscribers:"800K",description:"海外华语新闻资讯。"},
+  {id:96,title:"Techie FM",author:"Techie FM",lang:"中文",langCode:"CN",cat:"商业科技",rating:4,cover:"",subscribers:"300K",description:"技术人听的中文技术播客。"},
+  {id:97,title:"On the Margin",author:"Various",lang:"English",langCode:"US",cat:"Culture",rating:4,cover:"",subscribers:"800K",description:"文化边缘地带的深度探索。"},
+  {id:98,title:"文化有限",author:"文化有限",lang:"中文",langCode:"CN",cat:"文化教育",rating:5,cover:"",subscribers:"600K",description:"三位主播聊书、电影和文化。"},
+  {id:99,title:"The Pitch",author:"Gimlet",lang:"English",langCode:"US",cat:"Business",rating:5,cover:"",subscribers:"3M",description:"真实融资路演，初创企业如何拿到投资。"},
+  {id:100,title:"故事FM",author:"故事FM",lang:"中文",langCode:"CN",cat:"文化教育",rating:4,cover:"",subscribers:"2M",description:"每个人都是故事的主角。"},
+];
+
+const CATEGORIES=["全部","News","True Crime","Business","Culture","Education","Science","Entertainment","Art","Health","Philosophy","History","Music","Language"];
+const LANGS=[
+  {name:"全部语言",flag:"🌐",code:null},
+  {name:"中文",flag:"🇨🇳",code:"中文"},
+  {name:"English",flag:"🇺🇸",code:"English"},
+  {name:"日本語",flag:"🇯🇵",code:"Japanese"},
+  {name:"한국어",flag:"🇰🇷",code:"Korean"},
+  {name:"Español",flag:"🇪🇸",code:"Spanish"},
+  {name:"Français",flag:"🇫🇷",code:"French"},
+  {name:"Deutsch",flag:"🇩🇪",code:"German"},
+  {name:"Italiano",flag:"🇮🇹",code:"Italian"},
+];
+
+const AI_QUESTIONS=[
+  "这期播客的核心观点是什么？",
+  "用一句话总结这期内容",
+  "有哪些值得关注的细节？",
+  "这期节目和当前热点有什么联系？",
+  "用中文给我解释主要概念",
+];
+
+const AI_RESPONSES=[
+  "这期播客深入探讨了相关主题，从多个维度分析了当前形势，我认为最有价值的是对底层逻辑的拆解。",
+  "从节目中可以看出，主播持有一个相对客观的立场，对不同的声音都有所呈现。这对于理解复杂问题很有帮助。",
+  "值得注意的几个数据点：内容涉及的知识密度较高，建议反复收听关键段落。我建议你特别关注后半段的讨论。",
+  "这个问题其实很值得思考。节目中提供了一些独特的视角，比如从历史脉络出发看现在的局面，这可能是你之前没有考虑过的角度。",
+  "整体而言，这是一期质量很高的节目，信息量很大。适合有一定基础的朋友收听，如果能配合相关阅读材料效果会更好。",
+];
+
+// ── App ──────────────────────────────────────────────────────────
+function App(){
+  const [unlocked,setUnlocked]=useState(false);
+  const [tab,setTab]=useState('all');
+  const [selLang,setSelLang]=useState(null);
+  const [selCat,setSelCat]=useState('全部');
+  const [query,setQuery]=useState('');
+  const [favs,setFavs]=useState(()=>{try{return JSON.parse(localStorage.getItem('pw_fav_v2')||'[]')}catch{return []}});
+  const [playing,setPlaying]=useState(null);
+  const [isPlaying,setIsPlaying]=useState(false);
+  const [detail,setDetail]=useState(null);
+  const [detailTab,setDetailTab]=useState('episodes');
+  const [volume,setVolume]=useState(.8);
+  const [speed,setSpeed]=useState(1);
+  const [dlList,setDlList]=useState(()=>{try{return JSON.parse(localStorage.getItem('pw_dl_v1')||'[]')}catch{return []}});
+  const audioRef=useRef(null);
+
+  // Passkey
+  const doUnlock=useCallback(async()=>{
+    const btn=document.getElementById('pk-btn');
+    const err=document.getElementById('pk-error');
+    const loading=document.getElementById('pk-loading');
+    btn.style.display='none';
+    loading.style.display='block';
+    loading.textContent='正在验证通行密钥…';
     try{
-      var r=Babel.transform(src,{presets:["react"]});
-      if(!r||!r.code){document.getElementById("root").innerHTML="<pre style=color:red>Babel returned empty</pre>";return}
-      var ns=document.createElement("script");
-      ns.textContent=r.code;
+      const stored=localStorage.getItem('pw_cred_id');
+      if(!stored){
+        // Register
+        loading.textContent='首次设置，正在注册密钥…';
+        const reg=await navigator.credentials.create({publicKey:{"challenge":Uint8Array.from(atob("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY="),c=>c.charCodeAt(0)),"rp":{"name":"PodcastWorld","id":location.hostname},"user":{"id":Uint8Array.from("podcastworld",c=>c.charCodeAt(0)),"name":"podcastworld","displayName":"PodcastWorld User"},"pubKeyCredParams":[{"alg":-7,"type":"public-key"},{"alg":-257,"type":"public-key"}],"authenticatorSelection":{"authenticatorAttachment:"platform","userVerification":"required"},"timeout":60000}});
+        localStorage.setItem('pw_cred_id',reg.rawId?btoa(String.fromCharCode(...new Uint8Array(reg.rawId))):'');
+        setUnlocked(true);
+      } else {
+        // Sign in
+        const get=await navigator.credentials.get({publicKey:{"challenge":Uint8Array.from(atob("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY="),c=>c.charCodeAt(0)),"allowCredentials":[{"id":Uint8Array.from(atob(stored),c=>c.charCodeAt(0)),"type":"public-key"}],"userVerification":"required","timeout":60000}});
+        if(get){setUnlocked(true);}
+      }
+    } catch(e){
+      err.textContent='验证失败: '+e.message;
+      err.style.display='block';
+      btn.style.display='block';
+      loading.style.display='none';
+    }
+  },[]);
+
+  useEffect(()=>{document.getElementById('pk-btn')?.addEventListener('click',doUnlock);},[doUnlock]);
+  useEffect(()=>{if(unlocked){document.getElementById('pk-screen')?.remove();}},[unlocked]);
+
+  // Filter
+  const filtered=PODCASTS.filter(p=>{
+    if(tab==='fav'&&!favs.includes(p.id))return false;
+    if(selLang&&p.lang!==selLang)return false;
+    if(selCat!=='全部'&&p.cat!==selCat)return false;
+    if(query){
+      const q=query.toLowerCase();
+      return p.title.toLowerCase().includes(q)||p.author.toLowerCase().includes(q)||p.lang.toLowerCase().includes(q)||p.cat.toLowerCase().includes(q)||p.description.toLowerCase().includes(q);
+    }
+    return true;
+  });
+
+  const toggleFav=(id,e)=>{e.stopPropagation();const nf=favs.includes(id)?favs.filter(f=>f!==id):[...favs,id];setFavs(nf);localStorage.setItem('pw_fav_v2',JSON.stringify(nf));};
+  const openDetail=(p)=>{setDetail(p);setDetailTab('episodes');};
+  const closeDetail=()=>setDetail(null);
+  const toggleFavTab=()=>{setTab('fav');};
+
+  const episodes=[
+    {n:1,title:`第1集: ${detail?.title || ''} — 开启之旅`,dur:"42:18"},
+    {n:2,title:`第2集: 深度探索 — ${detail?.author || ''} 的故事`,dur:"38:55"},
+    {n:3,title:`第3集: 幕后揭秘`,dur:"45:30"},
+    {n:4,title:`第4集: 听众问答精选`,dur:"51:12"},
+    {n:5,title:`第5集: 年度总结特别版`,dur:"60:00"},
+  ];
+
+  const [trLines]=useState([
+    {en:"Welcome to today's episode.",cn:"欢迎收听今天的节目。"},
+    {en:"We're going to dive deep into a fascinating topic.",cn:"我们今天要深入探讨一个有趣的话题。"},
+    {en:"This story begins in a small town.",cn:"故事从小镇开始。"},
+    {en:"What happened next changed everything.",cn:"接下来发生的事情改变了一切。"},
+    {en:"And that's what we're here to discuss today.",cn:"这就是我们今天要讨论的内容。"},
+    {en:"The research shows some surprising results.",cn:"研究显示出一些令人惊讶的结果。"},
+    {en:"Many experts have different perspectives on this.",cn:"许多专家对此有不同看法。"},
+    {en:"Let me break it down step by step.",cn:"让我一步一步来解释。"},
+    {en:"In conclusion, this has far-reaching implications.",cn:"总之，这有着深远的影响。"},
+    {en:"Thank you for listening. See you next time!",cn:"感谢收听，下次见！"},
+  ]);
+  const [activeTr,setActiveTr]=useState(-1);
+  const [aiMsgs,setAiMsgs]=useState([]);
+  const [aiInput,setAiInput]=useState('');
+  const sendAi=()=>{if(!aiInput.trim())return;const q=aiInput;setAiMsgs(m=>[...m,{role:'user',text:q},{role:'ai',text:AI_RESPONSES[Math.floor(Math.random()*AI_RESPONSES.length)]}]);setAiInput('');};
+
+  const dl=(ep)=>{const n={name:ep.title,size:"32.4 MB",time:new Date().toLocaleString('zh')};const nd=[n,...dlList];setDlList(nd);localStorage.setItem('pw_dl_v1',JSON.stringify(nd));};
+  const rmDl=(i)=>{const nd=dlList.filter((_,j)=>j!==i);setDlList(nd);localStorage.setItem('pw_dl_v1',JSON.stringify(nd));};
+
+  const getCardBg=(id)=>{const colors=['#EDE9FE','#FCE7F3','#DBEAFE','#D1FAE5','#FEF3C7','#FCE7F3','#E0E7FF','#FEE2E2','#ECFDF5'];return colors[id%colors.length];};
+  const getCardEmoji=(p)=>{const m={'News':'📰','True Crime':'🔍','Business':'💼','Culture':'🎭','Education':'📚','Science':'🔬','Entertainment':'🎬','Art':'🎨','Health':'💪','Philosophy':'🧠','History':'📜','Music':'🎵','Language':'🌍','商业科技':'💻','文化教育':'🎓','科学':'🔭','娱乐休闲':'🎮','艺术创作':'🖌️','历史':'📖','哲学宗教':'🙏'};return m[p.cat]||'🎙️';};
+
+  return (
+    <div className="app-wrap">
+      {/* Sidebar */}
+      <div className="sidebar">
+        <div className="sidebar-logo">
+          PodcastWorld
+          <span>发现全球播客</span>
+        </div>
+        <div className="sidebar-section">浏览</div>
+        <div className={`sidebar-item ${tab==='all'?'active':''}`} onClick={()=>setTab('all')}>
+          <span className="flag">🌐</span> 全部播客
+          <span className="count">{PODCASTS.length}</span>
+        </div>
+        <div className={`sidebar-item ${tab==='fav'?'active':''}`} onClick={toggleFavTab}>
+          <span className="flag">❤️</span> 我的收藏
+          <span className="count">{favs.length}</span>
+        </div>
+        <div className="sidebar-section">语言</div>
+        {LANGS.map(l=>(
+          <div key={l.code||'all'} className={`sidebar-item ${selLang===l.code?'active':''}`} onClick={()=>{setSelLang(l.code);setTab('all');}}>
+            <span className="flag">{l.flag}</span> {l.name}
+            <span className="count">{l.code?PODCASTS.filter(p=>p.lang===l.code).length:PODCASTS.length}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Main */}
+      <div className="main">
+        <div className="topbar">
+          <div className="topbar-title">🎙️ PodcastWorld</div>
+          <div className="search-box">
+            <span className="si">🔍</span>
+            <input placeholder="搜索播客、话题、作者…" value={query} onChange={e=>setQuery(e.target.value)} />
+          </div>
+          <div className="topbar-actions">
+            <button className="icon-btn" title="收藏" onClick={toggleFavTab}>❤️</button>
+          </div>
+        </div>
+
+        <div className="filter-bar">
+          {CATEGORIES.map(c=>(
+            <div key={c} className={`filter-tag ${selCat===c?'active':''}`} onClick={()=>setSelCat(c)}>{c}</div>
+          ))}
+        </div>
+
+        <div className="content">
+          <div className="content-header">
+            <h2>{tab==='fav'?'❤️ 我的收藏':'📋 全部播客'}</h2>
+            <span>{filtered.length} 个结果</span>
+          </div>
+          {filtered.length===0?(
+            <div className="fav-empty">
+              <div className="fe">🎧</div>
+              {tab==='fav'?'还没有收藏任何播客':'没有找到匹配的播客'}
+            </div>
+          ):(
+            <div className="grid">
+              {filtered.map(p=>(
+                <div key={p.id} className="card" onClick={()=>openDetail(p)}>
+                  <button className={`fav-btn ${favs.includes(p.id)?'hearted':''}`} onClick={e=>toggleFav(p.id,e)}>
+                    {favs.includes(p.id)?'❤️':'🤍'}
+                  </button>
+                  <div className="card-img" style={{background:getCardBg(p.id)}}>
+                    <span>{getCardEmoji(p)}</span>
+                  </div>
+                  <div className="card-body">
+                    <div className="card-title">{p.title}</div>
+                    <div className="card-meta">{p.author}</div>
+                    <div className="card-tags">
+                      <span className="tag lang">{p.lang}</span>
+                      <span className="tag">{p.cat}</span>
+                    </div>
+                    <div style={{marginTop:6,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                      <span style={{fontSize:'.6rem',color:'var(--mid)'}}>🌐 {p.subscribers}</span>
+                      <span style={{fontSize:'.6rem',color:'#F59E0B'}}>{'★'.repeat(p.rating)}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Player Bar */}
+        {playing&&(
+          <div className="player-bar">
+            <div className="pb-thumb" style={{background:getCardBg(playing.id)}}><span>{getCardEmoji(playing)}</span></div>
+            <div className="pb-info">
+              <div className="pb-title">{playing.title}</div>
+              <div className="pb-sub">{playing.author}</div>
+            </div>
+            <div className="pb-controls">
+              <button className="pb-btn pb-skip">⏮</button>
+              <button className="pb-btn pb-play" onClick={()=>setIsPlaying(v=>!v)}>{isPlaying?'⏸':'▶'}</button>
+              <button className="pb-btn pb-skip">⏭</button>
+            </div>
+            <div className="pb-time">12:34 / 42:18</div>
+            <div className="pb-progress">
+              <span style={{fontSize:'.6rem',color:'var(--mid)'}}></span>
+              <input type="range" min="0" max="100" defaultValue="30" />
+            </div>
+            <div className="pb-vol">
+              🔈 <input type="range" min="0" max="1" step=".05" value={volume} onChange={e=>setVolume(parseFloat(e.target.value))} />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Detail Modal */}
+      {detail&&(
+        <div className="modal-overlay" onClick={e=>{if(e.target===e.currentTarget)closeDetail()}}>
+          <div className="modal">
+            <div className="modal-header">
+              <div className="mh-cover" style={{background:getCardBg(detail.id)}}><span style={{fontSize:'2.5rem'}}>{getCardEmoji(detail)}</span></div>
+              <div className="mh-info">
+                <div className="mh-title">{detail.title}</div>
+                <div className="mh-author">{detail.author} · {detail.lang} · 🌐 {detail.subscribers}</div>
+                <div className="mh-tags">
+                  <span className="tag lang">{detail.lang}</span>
+                  <span className="tag">{detail.cat}</span>
+                  <span className="tag" style={{color:'#F59E0B'}}>{'★'.repeat(detail.rating)}</span>
+                </div>
+                <div className="mh-actions">
+                  <button className="btn btn-primary" onClick={()=>{setPlaying(detail);setIsPlaying(true);closeDetail();}}>▶ 播放</button>
+                  <button className={`btn btn-secondary ${favs.includes(detail.id)?'active':''}`} onClick={e=>toggleFav(detail.id,e)}>
+                    {favs.includes(detail.id)?'❤️ 已收藏':'🤍 收藏'}
+                  </button>
+                </div>
+              </div>
+              <button className="mh-close" onClick={closeDetail}>✕</button>
+            </div>
+            <div className="modal-tabs">
+              <div className={`tab ${detailTab==='episodes'?'active':''}`} onClick={()=>setDetailTab('episodes')}>🎵 剧集列表</div>
+              <div className={`tab ${detailTab==='transcript'?'active':''}`} onClick={()=>setDetailTab('transcript')}>📝 原文翻译</div>
+              <div className={`tab ${detailTab==='ai'?'active':''}`} onClick={()=>setDetailTab('ai')}>🤖 AI 助手</div>
+              <div className={`tab ${detailTab==='dl'?'active':''}`} onClick={()=>setDetailTab('dl')}>⬇ 下载管理</div>
+            </div>
+            <div className="modal-body">
+              {detailTab==='episodes'&&(
+                <ul className="ep-list">
+                  {episodes.map(ep=>(
+                    <li key={ep.n} className="ep-item" onClick={()=>{setPlaying(detail);setIsPlaying(true);}}>
+                      <span className="ep-num">{ep.n}</span>
+                      <span className="ep-title">{ep.title}</span>
+                      <span className="ep-dur">{ep.dur}</span>
+                      <span className="ep-dl" onClick={e=>{e.stopPropagation();dl(ep);}}>⬇</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {detailTab==='transcript'&&(
+                <div className="transcript">
+                  {trLines.map((l,i)=>(
+                    <div key={i} className={`tr-line ${activeTr===i?'active':''}`} onClick={()=>setActiveTr(i)}>
+                      <div className="tr-en">{l.en}</div>
+                      <div className="tr-cn">{l.cn}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {detailTab==='ai'&&(
+                <div className="ai-chat">
+                  <div style={{display:'flex',gap:6,marginBottom:8,flexWrap:'wrap'}}>
+                    {AI_QUESTIONS.map((q,i)=>(
+                      <button key={i} style={{padding:'4px 10px',borderRadius:20,border:'1.5px solid var(--border)',background:'#fff',fontSize:'.7rem',cursor:'pointer',color:'var(--purple)'}} onClick={()=>{setAiInput(q);}}>{q}</button>
+                    ))}
+                  </div>
+                  <div className="ai-msgs">
+                    {aiMsgs.length===0&&<div style={{textAlign:'center',color:'var(--mid)',fontSize:'.8rem',padding:'20px 0'}}>👇 发送消息开始对话</div>}
+                    {aiMsgs.map((m,i)=>(
+                      <div key={i} className={`ai-msg ${m.role}`}>
+                        <div className={`ai-avatar ${m.role}`}>{m.role==='ai'?'🤖':'你'}</div>
+                        <div className={`ai-bubble ${m.role}`}>{m.text}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="ai-input-wrap">
+                    <input value={aiInput} onChange={e=>setAiInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&sendAi()} placeholder="针对当前播客内容提问…" />
+                    <button onClick={sendAi}>发送</button>
+                  </div>
+                </div>
+              )}
+              {detailTab==='dl'&&(
+                dlList.length===0?
+                <div className="fav-empty"><div className="fe">⬇</div>暂无下载内容</div>:
+                <ul className="dl-list">
+                  {dlList.map((d,i)=>(
+                    <li key={i} className="dl-item">
+                      <span className="dl-name">{d.name}</span>
+                      <span className="dl-size">{d.size} · {d.time}</span>
+                      <span className="dl-del" onClick={()=>rmDl(i)}>✕</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+<script>
+// Manual Babel transform — runs after Babel CDN loads
+(function(){
+  function tryTransform(){
+    var babelScript = document.querySelector('script[type="text/babel"]');
+    if(!babelScript){ setTimeout(tryTransform, 200); return; }
+    var src = babelScript.textContent || '';
+    if(!src){ document.getElementById('root').innerHTML='<pre style="color:red;padding:20px">Error: babel script empty</pre>'; return; }
+    try{
+      if(typeof Babel === 'undefined'){ setTimeout(tryTransform, 300); return; }
+      var result = Babel.transform(src, {presets:['react']});
+      if(!result || !result.code){ document.getElementById('root').innerHTML='<pre style="color:red;padding:20px">Babel transform returned empty</pre>'; return; }
+      var ns = document.createElement('script');
+      ns.textContent = result.code;
       document.body.appendChild(ns);
-      ss[0].remove();
-    }catch(e){document.getElementById("root").innerHTML="<pre style=color:red>Transform error: "+e.message+"</pre>"}
+      babelScript.remove();
+    }catch(e){
+      document.getElementById('root').innerHTML='<pre style="color:red;padding:20px">Transform error: '+e.message+'</pre>';
+    }
   }
-  if(typeof Babel==="undefined"){setTimeout(doTransform,500)}else{doTransform()}
+  tryTransform();
 })();
 </script>
 </body>
