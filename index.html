@@ -339,7 +339,7 @@ function App(){
       if(!stored){
         // Register
         loading.textContent='首次设置，正在注册密钥…';
-        const reg=await navigator.credentials.create({publicKey:{"challenge":Uint8Array.from(atob("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY="),c=>c.charCodeAt(0)),"rp":{"name":"PodcastWorld","id":location.hostname},"user":{"id":Uint8Array.from("podcastworld",c=>c.charCodeAt(0)),"name":"podcastworld","displayName":"PodcastWorld User"},"pubKeyCredParams":[{"alg":-7,"type":"public-key"},{"alg":-257,"type":"public-key"}],"authenticatorSelection":{"authenticatorAttachment:"platform","userVerification":"required"},"timeout":60000}});
+        const reg=await navigator.credentials.create({publicKey:{"challenge":Uint8Array.from(atob("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY="),c=>c.charCodeAt(0)),"rp":{"name":"PodcastWorld","id":location.hostname},"user":{"id":Uint8Array.from("podcastworld",c=>c.charCodeAt(0)),"name":"podcastworld","displayName":"PodcastWorld User"},"pubKeyCredParams":[{"alg":-7,"type":"public-key"},{"alg":-257,"type":"public-key"}],"authenticatorSelection":{"authenticatorAttachment":"platform","userVerification":"required"},"timeout":60000}});
         localStorage.setItem('pw_cred_id',reg.rawId?btoa(String.fromCharCode(...new Uint8Array(reg.rawId))):'');
         setUnlocked(true);
       } else {
